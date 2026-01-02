@@ -5,6 +5,7 @@ The project was developed collaboratively, with clear task ownership and separat
 
 ---
 
+
 ## 👤 Collaborator GEGA — Data Ingestion & Preprocessing
 
 **Responsibilities:**
@@ -30,6 +31,7 @@ data/processed/clean_fuel.csv
 - `data/processed/clean_fuel.csv`
 
 ---
+
 
 ## 👤 Collaborator BESO — Exploratory Data Analysis & Visualization
 
@@ -83,6 +85,7 @@ data/processed/clean_fuel.csv
 
 ---
 
+
 ## 👤 Collaborator NINO — Model Abstraction & Engineering Quality
 
 **Responsibilities:**
@@ -124,3 +127,6 @@ This project emphasizes:
 - Professional software engineering practices
 
 All contributors participated actively and collaboratively throughout the project lifecycle.
+
+
+
