@@ -20,6 +20,7 @@ from src.visualization import (
     plot_scatter_with_trend,
     plot_monthly_average_price,
     plot_interactive_price_trend,
+    plot_correlation_heatmap,
 )
 # -----------------------------
 # 0) Dynamic, team-safe paths
@@ -128,6 +129,25 @@ vat_std = float(df["vat_rate"].std())
 # Time span
 start_date = df["date"].min().date()
 end_date = df["date"].max().date()
+
+# -----------------------------
+# Correlation Heatmap
+# -----------------------------
+numeric_cols = [
+    "pump_price",
+    "duty_rate",
+    "vat_rate",
+]
+
+plot_correlation_heatmap(
+    df,
+    cols=numeric_cols,
+    title="Correlation Heatmap: Pump Price, Duty Rate, VAT Rate",
+    out_path=FIG_DIR / "correlation_heatmap.png",
+)
+
+print("✅ Correlation heatmap saved: correlation_heatmap.png")
+
 
 insights_text = f"""# EDA Insights – UK Weekly Fuel Prices
 

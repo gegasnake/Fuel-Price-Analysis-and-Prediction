@@ -253,3 +253,59 @@ def plot_interactive_price_trend(
         fig.write_html(out_path)
 
     return fig
+
+
+def plot_correlation_heatmap(
+    df: pd.DataFrame,
+    *,
+    cols: list[str],
+    title: str = "Correlation Heatmap",
+    out_path: Optional[Path] = None,
+) -> plt.Figure:
+    """
+    Plot a correlation heatmap for selected numeric columns.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe.
+    cols : list[str]
+        Numeric columns to include in correlation matrix.
+    title : str
+        Plot title.
+    out_path : Optional[Path]
+        If provided, save figure to this path.
+
+    Notes
+    -----
+    - Uses Pearson correlation.
+    - Implemented with pure matplotlib (course-safe).
+    """
+
+    data = df[cols].dropna()
+    corr = data.corr()
+
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(111)
+
+    cax = ax.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
+    fig.colorbar(cax)
+
+    ax.set_title(title)
+
+    ax.set_xticks(range(len(cols)))
+    ax.set_yticks(range(len(cols)))
+    ax.set_xticklabels(cols, rotation=45, ha="right")
+    ax.set_yticklabels(cols)
+
+    # Annotate correlation values
+    for i in range(len(cols)):
+        for j in range(len(cols)):
+            ax.text(j, i, f"{corr.iloc[i, j]:.2f}", ha="center", va="center", color="black")
+
+    fig.tight_layout()
+
+    if out_path is not None:
+        save_fig(fig, out_path)
+
+    return fig
