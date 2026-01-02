@@ -1,7 +1,7 @@
 """
 notebooks/04_machine_learning.py
 
-Machine Learning & Evaluation for UK Fuel Prices (Collaborator C).
+Machine Learning & Evaluation for UK Fuel Prices.
 
 This version explicitly uses train_test_split()
 to align with project guidelines / rubric.
@@ -19,10 +19,13 @@ Models:
 
 Metrics:
 - MAE, RMSE, R²
+
+Bonus-quality additions (via src/models.py):
+- run_sanity_checks (unit-test-like checks)
+- feature importance extraction + plot (tree models)
 """
 
 from pathlib import Path
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -36,10 +39,14 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
+from src.models import (
+    run_sanity_checks,
+    get_feature_importance_df,
+    plot_feature_importance,
+)
 
-# -----------------------------
+
 # 0) Dynamic paths
-# -----------------------------
 cwd = Path.cwd()
 PROJECT_ROOT = cwd.parent if cwd.name == "notebooks" else cwd
 
@@ -54,9 +61,7 @@ METRICS_PATH = RESULTS_DIR / "model_metrics.csv"
 RMSE_FIG_PATH = FIG_DIR / "model_rmse_comparison.png"
 
 
-# -----------------------------
 # 1) Load dataset
-# -----------------------------
 print("Loading cleaned dataset...")
 df = pd.read_csv(DATA_PATH)
 
@@ -65,11 +70,10 @@ df = df.dropna(subset=["date"])
 
 print("Dataset shape:", df.shape)
 print("Columns:", list(df.columns))
+print(df.head())
 
 
-# -----------------------------
-# 2) Feature engineering (BONUS)
-# -----------------------------
+# 2) Feature engineering
 df["year"] = df["date"].dt.year
 df["month"] = df["date"].dt.month
 df["week"] = df["date"].dt.isocalendar().week.astype(int)
@@ -79,11 +83,11 @@ FEATURE_COLS = ["fuel_type", "duty_rate", "vat_rate", "year", "month", "week"]
 
 X = df[FEATURE_COLS]
 y = df[TARGET_COL]
+#Sanity checks (unit-test-like)
+run_sanity_checks(df, target_col=TARGET_COL)
 
 
-# -----------------------------
-# 3) Train / Test split (REQUIRED)
-# -----------------------------
+# 3) Train / Test split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -91,13 +95,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42,
 )
 
-print("Train size:", X_train.shape)
+print("\nTrain size:", X_train.shape)
 print("Test size:", X_test.shape)
 
 
-# -----------------------------
 # 4) Preprocessing
-# -----------------------------
 categorical_features = ["fuel_type"]
 numeric_features = [c for c in FEATURE_COLS if c not in categorical_features]
 
@@ -109,9 +111,7 @@ preprocess = ColumnTransformer(
 )
 
 
-# -----------------------------
 # 5) Models
-# -----------------------------
 models = {
     "LinearRegression": LinearRegression(),
     "DecisionTree": DecisionTreeRegressor(
@@ -129,9 +129,7 @@ models = {
 }
 
 
-# -----------------------------
 # 6) Training & evaluation
-# -----------------------------
 def evaluate(y_true, y_pred):
     return {
         "MAE": mean_absolute_error(y_true, y_pred),
@@ -141,6 +139,7 @@ def evaluate(y_true, y_pred):
 
 
 results = []
+trained_pipelines = {}
 
 for name, model in models.items():
     print(f"\nTraining {name}")
@@ -159,12 +158,12 @@ for name, model in models.items():
     metrics["model"] = name
     results.append(metrics)
 
+    trained_pipelines[name] = pipe
+
     print(metrics)
 
 
-# -----------------------------
 # 7) Save metrics
-# -----------------------------
 metrics_df = pd.DataFrame(results).set_index("model").sort_values("RMSE")
 metrics_df.to_csv(METRICS_PATH)
 
@@ -172,9 +171,7 @@ print("\n✅ Metrics saved to:", METRICS_PATH)
 print(metrics_df)
 
 
-# -----------------------------
 # 8) RMSE comparison plot
-# -----------------------------
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
@@ -187,7 +184,29 @@ fig.tight_layout()
 fig.savefig(RMSE_FIG_PATH, dpi=200)
 plt.close(fig)
 
-print("✅ RMSE comparison saved to:", RMSE_FIG_PATH)
+print("RMSE comparison saved to:", RMSE_FIG_PATH)
+
+
+# -----------------------------
+# 8.1) Feature importance plot (BONUS – tree models)
+# -----------------------------
+# We use RandomForest because it usually gives stable importance estimates.
+if "RandomForest" in trained_pipelines:
+    rf_pipe = trained_pipelines["RandomForest"]
+
+    try:
+        importance_df = get_feature_importance_df(rf_pipe)
+
+        plot_feature_importance(
+            importance_df,
+            top_n=15,
+            title="Random Forest Feature Importance",
+            out_path=FIG_DIR / "feature_importance_random_forest.png",
+        )
+
+        print("Feature importance plot saved: feature_importance_random_forest.png")
+    except ValueError as e:
+        print("Feature importance not available:", e)
 
 
 # -----------------------------
@@ -201,3 +220,4 @@ print(f"RMSE: {metrics_df.loc[best_model, 'RMSE']:.3f}")
 print(f"R²:  {metrics_df.loc[best_model, 'R2']:.3f}")
 
 print("\nThis satisfies the ML split requirement using train_test_split().")
+print("Feature importance analysis was performed using the Random Forest model.")
