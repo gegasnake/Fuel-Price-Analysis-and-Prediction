@@ -17,7 +17,7 @@ The project follows a reproducible data science pipeline including data preproce
 ---
 
 ## 📂 Project Structure
-
+```text
 FuelStationDataAnalysis/
 │
 ├── data/
@@ -42,7 +42,7 @@ FuelStationDataAnalysis/
 ├── README.md
 ├── CONTRIBUTIONS.md
 └── requirements.txt
-
+```
 ---
 
 ## 📊 Dataset
