@@ -18,11 +18,12 @@ The project follows a reproducible data science pipeline including data preproce
 
 ## 📂 Project Structure
 
+```text
 FuelStationDataAnalysis/
 │
 ├── data/
-│   ├── raw/
-│   └── processed/
+│   ├── raw/                    # Original dataset
+│   └── processed/              # Cleaned, ML-ready dataset
 │
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
@@ -31,17 +32,18 @@ FuelStationDataAnalysis/
 │   └── 04_machine_learning.ipynb
 │
 ├── src/
-│   ├── data_processing.py
-│   ├── visualization.py
-│   └── models.py
+│   ├── data_processing.py      # Data ingestion & preprocessing utilities
+│   ├── visualization.py        # Reusable visualization functions
+│   └── models.py               # Model abstraction & evaluation utilities
 │
 ├── reports/
-│   ├── figures/
-│   └── results/
+│   ├── figures/                # Saved plots and visualizations
+│   └── results/                # EDA insights and model metrics
 │
 ├── README.md
 ├── CONTRIBUTIONS.md
 └── requirements.txt
+
 
 ---
 
